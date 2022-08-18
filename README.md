@@ -1,2 +1,3 @@
-- Functionality of moving items from box to box.
+- Functionality of moving ToDos from Active Projects box to Finished Projects box.
 - Realising OOP, Prototypes and Classes logic.
+- Challenges included - calling method of one instance of class from another (for adding the deleted item in other list)
