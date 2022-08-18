@@ -12,10 +12,74 @@ class DOMHelper {
   }
 }
 
+class Component {
+  constructor(hostElementId, insertBefore = false) {
+    if (hostElementId) {
+      this.hostElement = document.getElementById(hostElementId);
+    } else {
+      this.hostElement = document.body;
+    }
+    this.insertBefore = insertBefore;
+  }
+
+  // Removing from DOM (More info on click for example)
+  detach() {
+    if (this.element) {
+      this.element.remove();
+    }
+  }
+
+  // Showing in DOM
+  attach() {
+    this.hostElement.insertAdjacentElement(
+      this.insertBefore ? 'afterbegin' : 'beforeend',
+      this.element
+    );
+  }
+}
+
 // For 'More Info' button
-class Tooltip {}
+class Tooltip extends Component {
+  constructor(closeNotifierFn) {
+    super();
+    this.closeNotifier = closeNotifierFn;
+    this.create();
+  }
+
+  // For opening More info only once
+  closeTooltip() {
+    this.detach();
+    this.closeNotifier();
+  }
+
+  create() {
+    const tooltipEl = document.createElement('div');
+    tooltipEl.className = 'card';
+    tooltipEl.textContent = 'MORE INFO HERE';
+    tooltipEl.addEventListener('click', this.closeTooltip.bind(this));
+    this.element = tooltipEl;
+  }
+
+  // Removing More info on click
+  detach() {
+    this.element.remove();
+  }
+
+  // Showing More Info on click
+  attach() {
+    const tooltipEl = document.createElement('div');
+    tooltipEl.className = 'card';
+    tooltipEl.textContent = 'MORE INFO HERE';
+    tooltipEl.addEventListener('click', this.closeTooltip.bind(this));
+    this.element = tooltipEl;
+    document.body.append(tooltipEl);
+  }
+}
 
 class ProjectItem {
+  // For showing only one 'More info'
+  hasActiveTooltip = false;
+
   constructor(id, updateProjListsFunc, type) {
     this.id = id;
     this.updateProjListsHandler = updateProjListsFunc; // To call switchFunc from projList. Like props in React
@@ -23,7 +87,21 @@ class ProjectItem {
     this.connectSwitchButton(type);
   }
 
-  connectMoreInfoButton() {}
+  // For More Info btn
+  showMoreInfoHandler() {
+    if (this.hasActiveTooltip) {
+      return;
+    }
+    const tooltip = new Tooltip(() => (this.hasActiveTooltip = false));
+    tooltip.attach();
+    this.hasActiveTooltip = true;
+  }
+
+  connectMoreInfoButton() {
+    const projItem = document.getElementById(this.id);
+    const moreInfoBtn = projItem.querySelector('button:first-of-type');
+    moreInfoBtn.addEventListener('click', this.showMoreInfoHandler);
+  }
 
   // For Finish/Activate btn
   connectSwitchButton(type) {
