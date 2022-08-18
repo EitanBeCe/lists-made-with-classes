@@ -1,0 +1,2 @@
+- Functionality of moving items from box to box.
+- Realising OOP, Prototypes and Classes logic.
